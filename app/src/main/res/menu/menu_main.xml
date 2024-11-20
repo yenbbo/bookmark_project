@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_home"
+        android:icon="@drawable/home_icon"
+        android:title="홈"
+        />
+    <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/search_icon"
+        android:title="검색"
+        />
+    <item
+        android:id="@+id/menu_myPage"
+        android:icon="@drawable/profile_icon"
+        android:title="마이페이지"
+        />
+</menu>
