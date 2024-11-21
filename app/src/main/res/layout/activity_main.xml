@@ -21,7 +21,7 @@
             android:layout_gravity="bottom"
             android:background="@color/white"
             app:itemBackground="@color/white"
-            app:itemIconSize="30dp"
+            app:itemIconSize="36dp"
             app:itemIconTint="@drawable/menu_item_color"
             app:itemActiveIndicatorStyle="@android:color/transparent"
             app:labelVisibilityMode="unlabeled"
