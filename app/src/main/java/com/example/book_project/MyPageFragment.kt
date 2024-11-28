@@ -1,5 +1,6 @@
 package com.example.book_project
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -23,4 +24,15 @@ class MyPageFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.myBookshelf.setOnClickListener() {
+            val intent = Intent(requireContext(), MyBookshelfActivity::class.java)
+            startActivity(intent)
+        }
+        binding.myPost.setOnClickListener() {
+            val intent = Intent(requireContext(), MyPostsActivity::class.java)
+            startActivity(intent)
+        }
+    }
 }
