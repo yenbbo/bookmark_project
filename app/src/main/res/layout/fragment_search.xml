@@ -8,9 +8,14 @@
     tools:context=".SearchFragment"
     android:background="@color/white"
     >
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="검색창"
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="코멘트 화면"
+        style="@style/button_style"
+        android:backgroundTint="@color/my_yellow"
+        android:layout_gravity="center"
+        android:layout_margin="80dp"
         />
 </LinearLayout>
