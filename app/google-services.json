@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "315293245880",
+    "project_id": "bookmarkinity",
+    "storage_bucket": "bookmarkinity.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315293245880:android:c57e8b1de5b491cbb0ef4d",
+        "android_client_info": {
+          "package_name": "com.example.book_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYooj03j003omlUhLxsPYxILbhb-X73QU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

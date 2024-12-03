@@ -62,11 +62,15 @@ class WritingActivity : AppCompatActivity() {
         binding.submit.setOnClickListener {
             val content = binding.content.text.toString()
             val page = binding.pageNum.text.toString()
+            val isSpoiler = binding.spoiler.isChecked
+            Log.d("WritingActivity", "Submitting content: $content, page: $page, isSpoiler: $isSpoiler")
+
 
             if (content.isNotEmpty() && page != "p." && page.isNotEmpty()) {
                 val resultIntent = Intent()
                 resultIntent.putExtra("content", content)
                 resultIntent.putExtra("page", page)
+                resultIntent.putExtra("isSpoiler", isSpoiler)
 
                 imageUri?.let {
                     resultIntent.putExtra("image", it.toString())

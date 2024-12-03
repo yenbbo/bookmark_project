@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Book_project</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="kakao_app_key">0044c250d80db14a74803fedaf3ba3a1</string>
+    <string name="scheme_kakao_app_key">kakao0044c250d80db14a74803fedaf3ba3a1</string>
 </resources>

@@ -19,7 +19,7 @@ import com.bumptech.glide.Glide
 import com.example.book_project.databinding.ActivityCommentBinding
 import com.example.book_project.databinding.ItemPostBinding
 
-data class Comment(val content: String, val page: String, val imageUrl: String? = null)
+data class Comment(val content: String, val page: String, val imageUrl: String? = null, val isSpoiler: Boolean = false)
 
 class CommentViewHolder(val binding: ItemPostBinding): RecyclerView.ViewHolder(binding.root)
 
@@ -33,7 +33,23 @@ class CommentAdapter(val datas: MutableList<Comment>?): RecyclerView.Adapter<Rec
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val binding=(holder as CommentViewHolder).binding
         val comment = datas!![position]
-        binding.itemText.text = comment.content
+        Log.d("CommentAdapter", "Binding comment: content=${comment.content}, page=${comment.page}, isSpoiler=${comment.isSpoiler}, imageUrl=${comment.imageUrl}")
+
+        // 스포일러가 포함된 글인 경우
+        if (comment.isSpoiler) {
+            binding.itemText.text = "스포일러가 포함된 글입니다"
+            binding.showContent.visibility = View.VISIBLE // "글 보기" 표시
+            binding.showContent.setOnClickListener {
+                binding.itemText.text = comment.content // 원본 글 표시
+                binding.showContent.visibility = View.GONE // "글 보기" 숨김
+            }
+            binding.itemImage.visibility = View.GONE // 이미지 숨김
+        } else { // 스포일러가 포함되지 않은 글인 경우
+            binding.itemText.text = comment.content
+            binding.showContent.visibility = View.GONE
+
+        }
+
         binding.itemPage.text = comment.page
 
         if(!comment.imageUrl.isNullOrEmpty()) {
@@ -92,13 +108,14 @@ class CommentActivity : AppCompatActivity() {
             val content = data?.getStringExtra("content") ?: ""
             val page = data?.getStringExtra("page") ?: ""
             val imageUrlString = data?.getStringExtra("image")
+            val isSpoiler = data?.getBooleanExtra("isSpoiler", false)
+            Log.d("CommentActivity", "Received content: $content, page: $page, isSpoiler: $isSpoiler, imageUrl: $imageUrlString")
 
             val imageUrl = imageUrlString?.let {
                 Uri.parse(it)
             }
-            Log.d("CommentActivity", "Received content: $content, page: $page, imageUrl: $imageUrl") // 로그 추가
 
-            val comment = Comment(content, page, imageUrl.toString())
+            val comment = Comment(content, page, imageUrlString, isSpoiler!!)
             adapter.addComment(comment)
         }
     }

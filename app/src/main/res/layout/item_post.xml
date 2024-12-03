@@ -23,6 +23,14 @@
             android:layout_height="wrap_content"
             style="@style/content_style"
             />
+        <TextView
+            android:id="@+id/showContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="글 보기"
+            style="@style/spoiler_style"
+            android:visibility="gone"
+            />
     </LinearLayout>
     <View
         android:layout_width="0dp"
