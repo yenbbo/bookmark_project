@@ -17,10 +17,10 @@
         android:layout_marginBottom="50dp"
         />
     <ImageView
-        android:id="@+id/btnKaKaoLogin"
+        android:id="@+id/btnGoogleLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/kakao_login"
+        android:src="@drawable/google_login"
 
         />
 </LinearLayout>
