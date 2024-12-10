@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_bookshelf_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MyBookshelfActivity"
+    android:background="@color/white"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:orientation="horizontal"
+        android:background="@drawable/gradient_yellow"
+        >
+
+        <ImageView
+            android:id="@+id/before_icon"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/before_icon"
+            android:layout_marginStart="10dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="보관함"
+            style="@style/sub_title"
+            android:layout_marginStart="10dp"
+            android:gravity="center"
+            />
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@drawable/spinner_items_background"
+            android:dropDownVerticalOffset="18dp"
+            android:dropDownWidth="78dp"
+            />
+
+
+    </LinearLayout>
+</LinearLayout>

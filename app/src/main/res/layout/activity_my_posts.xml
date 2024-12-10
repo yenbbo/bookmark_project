@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_posts_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MyPostsActivity"
+    android:background="@color/white"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="115dp"
+        android:orientation="horizontal"
+        android:background="@drawable/gradient_yellow"
+        android:paddingBottom="30dp"
+        >
+
+        <ImageView
+            android:id="@+id/before_icon"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/before_icon"
+            android:layout_marginStart="10dp"
+            android:layout_gravity="bottom"
+
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="내가 쓴 글"
+            style="@style/sub_title"
+            android:layout_marginStart="10dp"
+            android:gravity="center"
+            android:layout_gravity="bottom"
+            />
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/posts_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+</LinearLayout>
