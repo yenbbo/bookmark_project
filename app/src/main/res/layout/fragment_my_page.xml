@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MyPageFragment"
+    android:background="@color/white"
+    >
+    <!--프로필 이미지-->
+    <ImageView
+        android:id="@+id/profileImage"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:src="@drawable/profile_icon"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        />
+    <!--사용자 이름-->
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="눈송이"
+        android:gravity="center"
+        android:fontFamily="@font/pretendard_regular"
+        android:textSize="28sp"
+        android:textColor="@color/dark_gray"
+        />
+
+    <android.widget.Button
+        android:id="@+id/edit_profile"
+        style="@style/sub_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_border"
+        android:text="프로필 수정"
+        android:textAlignment="viewStart"
+        android:layout_marginTop="30dp"
+        android:padding="20dp"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+
+        >
+        <android.widget.Button
+            android:id="@+id/my_bookshelf"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:text="보관함"
+            android:background="@drawable/button_border"
+            style="@style/sub_title"
+            />
+        <android.widget.Button
+            android:id="@+id/my_post"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:text="내가 쓴 글"
+            android:background="@drawable/button_border"
+            style="@style/sub_title"
+            />
+    </LinearLayout>
+</LinearLayout>
