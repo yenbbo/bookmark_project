@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -29,6 +30,7 @@ android {
                 "proguard-rules.pro"
             )
         }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -45,8 +47,14 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation ("com.github.bumptech.glide:glide:4.13.0")
+    implementation (libs.glide.v4130)
+    implementation(libs.firebase.bom.v3370)
+    implementation (libs.play.services.auth)
+    implementation (libs.firebase.auth)
+    implementation (libs.firebase.firestore)
+    implementation (libs.firebase.database)
 }

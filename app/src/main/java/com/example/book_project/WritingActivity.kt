@@ -10,6 +10,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +19,9 @@ import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.book_project.databinding.ActivityWritingBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import java.io.File
 
 class WritingActivity : AppCompatActivity() {
@@ -28,6 +32,7 @@ class WritingActivity : AppCompatActivity() {
     private var imageUri: Uri? = null
     private lateinit var requestCameraFileLaunch: ActivityResultLauncher<Intent>
     private lateinit var requestGalleryFileLaunch: ActivityResultLauncher<Intent>
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,21 +63,34 @@ class WritingActivity : AppCompatActivity() {
         binding.close.setOnClickListener {
             finish()
         }
-        // 등록 버튼 클릭하면 글 등록(CommentActivity에)
+        // 등록 버튼 클릭하면 firestore에 데이터 저장
         binding.submit.setOnClickListener {
             val content = binding.content.text.toString()
             val page = binding.pageNum.text.toString()
+            val isSpoiler = binding.spoiler.isChecked
+            val currentUser = FirebaseAuth.getInstance().currentUser
 
-            if (content.isNotEmpty() && page != "p." && page.isNotEmpty()) {
-                val resultIntent = Intent()
-                resultIntent.putExtra("content", content)
-                resultIntent.putExtra("page", page)
+            if (content.isNotEmpty() && page != "p." && page.isNotEmpty() && currentUser != null) {
+                val postData = hashMapOf(
+                    "uid" to currentUser.uid,
+                    "content" to content,
+                    "page" to page,
+                    "isSpoiler" to isSpoiler,
+                    "imageUrl" to (imageUri?.toString() ?: ""),
+                    "timestamp" to FieldValue.serverTimestamp()
+                )
 
-                imageUri?.let {
-                    resultIntent.putExtra("image", it.toString())
-                }
-                setResult(RESULT_OK, resultIntent)
-                finish()
+                db.collection("posts")
+                    .add(postData)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "글이 등록되었습니다.", Toast.LENGTH_SHORT).show()
+                        setResult(RESULT_OK)
+                        finish()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("WritingActivity", "Error saving post", e)
+                        Toast.makeText(this, "글 등록에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
             }
             else {
                 // 둘 중 하나라도 입력 안했을 때
@@ -88,8 +106,7 @@ class WritingActivity : AppCompatActivity() {
         requestCameraFileLaunch = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 imageUri?.let { uri ->
-                    val imageView = binding.image
-                    imageView.setImageURI(uri)
+                    binding.image.setImageURI(uri)
                 }
             }
         }
@@ -97,8 +114,7 @@ class WritingActivity : AppCompatActivity() {
         requestGalleryFileLaunch = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 val selectedImageUri: Uri? = it.data?.data
-                val imageView = binding.image
-                imageView.setImageURI(selectedImageUri)
+                binding.image.setImageURI(selectedImageUri)
                 imageUri = selectedImageUri
             }
         }
@@ -117,7 +133,6 @@ class WritingActivity : AppCompatActivity() {
             builder.show()
         }
     }
-
 
     private fun openCamera(){
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
