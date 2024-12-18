@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
         setContentView(binding.root)
 
         // Firebase 인증 초기화
@@ -41,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         // GoogleSignInOptions 설정
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.AIzaSyCYooj03j003omlUhLxsPYxILbhb-X73QU)) // Firebase 콘솔에서 제공되는 웹 클라이언트 ID
+            .requestIdToken(getString(R.string.default_web_client_id)) // Firebase 콘솔에서 제공되는 웹 클라이언트 ID
             .requestEmail()
             .build()
 
