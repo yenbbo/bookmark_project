@@ -22,6 +22,7 @@
             android:background="@color/white"
             app:itemBackground="@color/white"
             app:itemIconSize="36dp"
+            app:itemIconTint="@drawable/menu_item_color"
             app:itemActiveIndicatorStyle="@android:color/transparent"
             app:labelVisibilityMode="unlabeled"
             app:menu="@menu/menu_main" />

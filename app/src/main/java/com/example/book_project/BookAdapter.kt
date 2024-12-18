@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.example.book_project.model.Book
 
 class BookAdapter(
-    private val books: MutableList<Book>,
+    private var books: List<Book>,
     private val onItemClick: (Book) -> Unit
 ) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
@@ -44,8 +44,8 @@ class BookAdapter(
     override fun getItemCount(): Int = books.size
 
     fun updateBooks(newBooks: List<Book>) {
-        books.clear()
-        books.addAll(newBooks)
+        books = newBooks
         notifyDataSetChanged()
     }
+
 }

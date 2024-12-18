@@ -1,16 +1,17 @@
-import org.jetbrains.kotlin.backend.common.serialization.metadata.DynamicTypeDeserializer.id
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("androidx.navigation.safeargs.kotlin")
+
 
 }
-
 
 android {
     namespace = "com.example.book_project"
     compileSdk = 35
+
+    buildFeatures {
+        viewBinding = true
+    }
 
     defaultConfig {
         applicationId = "com.example.book_project"
@@ -38,26 +39,30 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    viewBinding{
+        enable = true
+    }
 }
 
 dependencies {
-
-    implementation(libs.glide)
-    implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-    implementation (libs.navigation.fragment.ktx.v260)
-    implementation (libs.androidx.navigation.ui.ktx.v260)
-
+    implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation (libs.glide.v4130)
+    implementation(libs.firebase.bom.v3370)
+    implementation (libs.play.services.auth)
+    implementation (libs.firebase.auth)
+    implementation (libs.firebase.firestore)
+    implementation (libs.firebase.database)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
 }
