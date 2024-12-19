@@ -34,9 +34,19 @@ class WritingActivity : AppCompatActivity() {
     private lateinit var requestGalleryFileLaunch: ActivityResultLauncher<Intent>
     private val db = FirebaseFirestore.getInstance()
 
+    private var bookID: String = ""
+    private var bookTitle: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        // Intent로 전달받은 bookID 값 가져오기
+        bookID = intent.getStringExtra("bookID") ?: ""
+        bookTitle = intent.getStringExtra("bookTitle") ?: ""
+        Log.d("WritingActivity", "bookID: $bookID, bookTitle: $bookTitle")
+        val shortTitle = bookTitle.substringBefore("(").trim() // 책 제목에 괄호가 나오면 제거
+        binding.bookTitle.text = shortTitle
 
         val editText = binding.pageNum
         editText.setText("p.")
@@ -77,14 +87,22 @@ class WritingActivity : AppCompatActivity() {
                     "page" to page,
                     "isSpoiler" to isSpoiler,
                     "imageUrl" to (imageUri?.toString() ?: ""),
-                    "timestamp" to FieldValue.serverTimestamp()
+                    "timestamp" to FieldValue.serverTimestamp(),
+                    "bookID" to bookID,
+                    "bookTitle" to bookTitle
                 )
 
-                db.collection("posts")
+                db.collection("books")
+                    .document(bookID)
+                    .collection("posts")
                     .add(postData)
                     .addOnSuccessListener {
                         Toast.makeText(this, "글이 등록되었습니다.", Toast.LENGTH_SHORT).show()
-                        setResult(RESULT_OK)
+                        Log.d("WritingActivity", "bookID: $bookID, bookTitle: $bookTitle")
+                        // 등록 후 CommentActivity로 이동
+                        val intent = Intent(this, CommentActivity::class.java)
+                        intent.putExtra("bookID", bookID)
+                        startActivity(intent)
                         finish()
                     }
                     .addOnFailureListener { e ->

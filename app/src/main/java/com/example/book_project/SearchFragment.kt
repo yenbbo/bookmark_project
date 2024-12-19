@@ -82,12 +82,12 @@ class SearchFragment : Fragment() {
                         for (i in 0 until items.length()) {
                             val item = items.getJSONObject(i)
                             val book = Book(
+                                id = item.getString("isbn"),
                                 title = item.getString("title").replace("<b>", "").replace("</b>", ""),
                                 author = item.optString("author", "Unknown"),
                                 coverUrl = item.optString("image", ""),
                                 description = item.optString("description", ""),
                                 rating = 0.0f, // 네이버 API는 평점을 제공 x
-                                pages = 0,     // 네이버 API는 페이지 정보를 제공 x
                                 year = item.optString("pubdate", "0000").take(4).toIntOrNull() ?: 0,
                                 publisher = item.optString("publisher", "Unknown")
                             )

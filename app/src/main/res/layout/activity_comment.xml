@@ -9,10 +9,9 @@
     tools:context=".CommentActivity">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="115dp"
+        android:layout_height="75dp"
         android:orientation="horizontal"
         android:background="@drawable/gradient_yellow"
-        android:paddingBottom="30dp"
         >
         <ImageView
             android:id="@+id/before_icon"

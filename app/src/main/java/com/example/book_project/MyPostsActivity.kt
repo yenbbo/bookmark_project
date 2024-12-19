@@ -90,9 +90,9 @@ class MyPostsActivity : AppCompatActivity() {
 
     private fun loadMyPosts(){
         user?.let { user ->
-            db.collection("posts")
-                .whereEqualTo("uid", user.uid)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+            db.collectionGroup("posts") // 모든 책에서 posts 컬렉션을 조회
+                .whereEqualTo("uid", user.uid) // 현재 사용자가 작성한 글만 필터링
+                .orderBy("timestamp", Query.Direction.DESCENDING) // 최신 글 먼저
                 .get()
                 .addOnSuccessListener { documents ->
                     val posts = documents.map { doc ->
@@ -100,9 +100,9 @@ class MyPostsActivity : AppCompatActivity() {
                     }
                     adapter.updatePosts(posts)
                 }
-                .addOnFailureListener { e->
+                .addOnFailureListener { e ->
                     Log.e("MyPostsActivity", "Error loading posts: ", e)
                 }
-        } ?: Log.e("MyPostsActivity", "User is null")
+        }
     }
 }

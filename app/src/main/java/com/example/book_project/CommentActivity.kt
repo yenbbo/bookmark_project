@@ -23,6 +23,8 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 data class Comment(
     val content: String = "",
@@ -30,9 +32,16 @@ data class Comment(
     val imageUrl: String? = null,
     val isSpoiler: Boolean = false,
     val timestamp: Timestamp = Timestamp.now(),
-    val id: String? = ""
+    val uid: String? = "",
+    val bookID: String? = ""
 ) {
     fun getDate(): Date = timestamp.toDate()
+    // 날짜 형식 변환
+    fun getFormattedDate(): String {
+        val date = getDate()
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+        return dateFormat.format(date)
+    }
 }
 
 class CommentViewHolder(val binding: ItemPostBinding): RecyclerView.ViewHolder(binding.root)
@@ -65,7 +74,7 @@ class CommentAdapter(val datas: MutableList<Comment>): RecyclerView.Adapter<Recy
         }
 
         binding.itemPage.text = comment.page
-        binding.itemDate.text = comment.getDate().toString()
+        binding.itemDate.text = comment.getFormattedDate()
 
         if(!comment.imageUrl.isNullOrEmpty()) {
             binding.itemImage.visibility = View.VISIBLE
@@ -102,6 +111,9 @@ class CommentActivity : AppCompatActivity() {
     private val comments = mutableListOf<Comment>()
     private val db = FirebaseFirestore.getInstance()
 
+    private var bookID: String? = null
+    private var bookTitle: String? = null
+
     private val writingActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             loadComments()
@@ -111,6 +123,10 @@ class CommentActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        // 책 데이터 전달 받기
+        bookID = intent.getStringExtra("bookID")
+        bookTitle = intent.getStringExtra("bookTitle")
+        Log.d("CommentActivity", "bookID: $bookID, bookTitle: $bookTitle")
 
         setRecyclerView()
         loadComments()
@@ -121,6 +137,8 @@ class CommentActivity : AppCompatActivity() {
 
         binding.writingFab.setOnClickListener {
             val intent = Intent(this, WritingActivity::class.java)
+            intent.putExtra("bookID", bookID) // 책 데이터 전달
+            intent.putExtra("bookTitle", bookTitle)
             writingActivityResultLauncher.launch(intent)
         }
     }
@@ -134,20 +152,25 @@ class CommentActivity : AppCompatActivity() {
     }
 
     private fun loadComments() {
-        db.collection("posts")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                comments.clear()
-                for (doc in documents) {
-                    val comment = doc.toObject(Comment::class.java)
-                    comments.add(comment)
+        bookID?.let {
+            db.collection("books")
+                .document(it)
+                .collection("posts")
+                .whereEqualTo("bookID", bookID)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener { documents ->
+                    comments.clear()
+                    for (doc in documents) {
+                        val comment = doc.toObject(Comment::class.java)
+                        comments.add(comment)
+                    }
+                    adapter.notifyDataSetChanged()
                 }
-                adapter.notifyDataSetChanged()
-            }
-            .addOnFailureListener { e ->
-                Log.e("CommentActivity", "Error loading comments", e)
-            }
+                .addOnFailureListener { e ->
+                    Log.e("CommentActivity", "Error loading comments", e)
+                }
+        }
     }
 
 }
