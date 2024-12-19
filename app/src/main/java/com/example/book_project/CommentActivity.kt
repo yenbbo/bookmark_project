@@ -65,6 +65,7 @@ class CommentAdapter(val datas: MutableList<Comment>): RecyclerView.Adapter<Recy
         }
 
         binding.itemPage.text = comment.page
+        binding.itemDate.text = comment.getDate().toString()
 
         if(!comment.imageUrl.isNullOrEmpty()) {
             binding.itemImage.visibility = View.VISIBLE
@@ -113,6 +114,10 @@ class CommentActivity : AppCompatActivity() {
 
         setRecyclerView()
         loadComments()
+
+        binding.beforeIcon.setOnClickListener {
+            finish()
+        }
 
         binding.writingFab.setOnClickListener {
             val intent = Intent(this, WritingActivity::class.java)

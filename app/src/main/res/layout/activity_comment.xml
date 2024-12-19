@@ -7,6 +7,46 @@
     android:orientation="vertical"
     android:background="@color/white"
     tools:context=".CommentActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="115dp"
+        android:orientation="horizontal"
+        android:background="@drawable/gradient_yellow"
+        android:paddingBottom="30dp"
+        >
+        <ImageView
+            android:id="@+id/before_icon"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/before_icon"
+            android:layout_marginStart="10dp"
+            android:layout_gravity="bottom"
+            />
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@drawable/spinner_items_background"
+            android:dropDownVerticalOffset="18dp"
+            android:dropDownWidth="78dp"
+            />
+    </LinearLayout>
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/page_searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:queryHint="페이지 검색"
+        android:background="@drawable/search_background"
+        android:iconifiedByDefault="false"
+        android:layout_margin="8dp" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/comment_recyclerview"
         android:layout_width="match_parent"
@@ -17,14 +57,19 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/writing_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/my_yellow"
         android:text="글 쓰기"
         style="@style/button_style"
-        android:layout_gravity="end|bottom"
+        android:layout_gravity="center_horizontal"
         android:layout_margin="20dp"
         />
-
+    </FrameLayout>
 </LinearLayout>

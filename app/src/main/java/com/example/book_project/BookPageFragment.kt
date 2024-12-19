@@ -38,7 +38,6 @@ class BookPageFragment : Fragment() {
         binding.bookTitle.text = book.title
         binding.bookAuthor.text = book.author
         binding.bookDescription.text = book.description
-        binding.bookPages.text = "${book.pages} pages"
         binding.bookYear.text = book.year.toString()
         binding.bookPublisher.text = book.publisher
         binding.bookRating.rating = book.rating

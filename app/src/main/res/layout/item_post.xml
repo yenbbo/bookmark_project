@@ -37,6 +37,11 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/item_date"
+        />
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/item_image"
         android:layout_width="80dp"

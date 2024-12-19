@@ -24,7 +24,8 @@ import com.google.firebase.firestore.toObject
 data class MyPost(
     val content: String = "",
     val page: String = "",
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val date: String = "",
 )
 
 class PostViewHolder(val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root)
@@ -38,6 +39,7 @@ class PostAdapter(val data: MutableList<MyPost>) : RecyclerView.Adapter<PostView
         val post = data[position]
         holder.binding.itemText.text = post.content
         holder.binding.itemPage.text = post.page
+        holder.binding.itemDate.text = post.date
 
         if(!post.imageUrl.isNullOrEmpty()){
             holder.binding.itemImage.visibility = ViewGroup.VISIBLE
