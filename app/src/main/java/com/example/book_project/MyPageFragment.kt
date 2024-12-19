@@ -36,8 +36,18 @@ class MyPageFragment : Fragment() {
                 .into(binding.profileImage)
         }
 
+        binding.logout.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(requireContext(), MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
         binding.editProfile.setOnClickListener {
-            // 프로필 수정 화면으로 이동하는 코드
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, EditProfileFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         binding.myBookshelf.setOnClickListener {
@@ -51,4 +61,6 @@ class MyPageFragment : Fragment() {
 
         return binding.root
     }
+
+
 }
