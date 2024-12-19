@@ -10,7 +10,6 @@ data class Book (
     val coverUrl: String, // URL로 이미지를 불러올 수 있도록 함
     val description: String, //책 설명
     val rating: Float,
-    val pages: Int,
     val year: Int,
     val publisher: String
 ) : Parcelable {
@@ -20,7 +19,6 @@ data class Book (
         parcel.readString().toString(),
         parcel.readString().toString(),
         parcel.readFloat(),
-        parcel.readInt(),
         parcel.readInt(),
         parcel.readString().toString()
     ) {
@@ -32,7 +30,6 @@ data class Book (
         parcel.writeString(coverUrl)
         parcel.writeString(description)
         parcel.writeFloat(rating)
-        parcel.writeInt(pages)
         parcel.writeInt(year)
         parcel.writeString(publisher)
     }
