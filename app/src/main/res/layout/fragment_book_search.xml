@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/search"
+    android:background="@color/white"
     android:padding="16dp">
 
     <RelativeLayout
@@ -46,6 +47,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"/>
+        android:orientation="vertical"
+        android:layout_marginBottom="75dp"/>
 
 </LinearLayout>

@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Book_project</string>
     <string name="default_web_client_id">315293245880-rfm0d3g21bu0j9sik7canned0o3rb4ek.apps.intercontinental.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

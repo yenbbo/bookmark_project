@@ -4,30 +4,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/book_page"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
     tools:context=".BookPageFragment">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:orientation="horizontal"
         android:background="@drawable/gradient_yellow"
         >
-
-    <ImageView
-        android:id="@+id/before_icon"
-        android:layout_width="32dp"
-        android:layout_height="match_parent"
-        android:src="@drawable/before_icon"
-        android:layout_marginStart="10dp"
-        />
+        <ImageView
+            android:id="@+id/before_icon"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/before_icon"
+            android:layout_marginStart="10dp"
+            android:layout_gravity="bottom"
+            />
     </LinearLayout>
 
     <!-- Content Area -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:layout_marginTop="75dp"
+        android:layout_marginBottom="75dp"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -88,7 +89,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:maxLines="6"
                 android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/ExpandDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:visibility="gone"
+                android:text="더보기"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
 
             <!-- Book Info -->
             <LinearLayout
@@ -116,44 +128,27 @@
             </LinearLayout>
 
             <!-- Comments Section -->
-            <TextView
+            <Button
+                android:id="@+id/writing_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="같이 달려요!"
-                android:textSize="18sp"
+                android:backgroundTint="@color/my_yellow"
+                style = "@style/sub_title"
                 android:layout_marginBottom="8dp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Comment Items -->
+                />
 
 
-                <TextView
-                    android:id="@+id/comment2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/comment3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp" />
-
-            </LinearLayout>
             <!-- View All Button -->
             <Button
                 android:id="@+id/buttonViewAll"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="모두 보기"
-                android:background="?attr/colorPrimary"
+                android:backgroundTint="@color/ivory"
+                style = "@style/sub_title"
                 />
         </LinearLayout>
     </ScrollView>
