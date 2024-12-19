@@ -189,7 +189,6 @@ class WritingActivity : AppCompatActivity() {
     }
 
 
-
     private fun openCamera() {
         if (checkAndRequestPermissions()) {
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
