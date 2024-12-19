@@ -1,13 +1,16 @@
 package com.example.book_project
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import com.example.book_project.model.Book
 import com.bumptech.glide.Glide
 import com.example.book_project.databinding.FragmentBookPageBinding
@@ -34,11 +37,32 @@ class BookPageFragment : Fragment() {
             parentFragmentManager.popBackStack() // 검색창으로 돌아가기
         }
 
+        binding.writingBtn.setOnClickListener {
+            val intent = Intent(requireContext(), WritingActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.buttonViewAll.setOnClickListener {
+            val intent = Intent(requireContext(), CommentActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.bookDescription.post {
+            if (binding.bookDescription.lineCount > 6) {
+                binding.ExpandDescription.visibility = View.VISIBLE
+            }
+        }
+
+        // "더보기" 버튼 클릭 이벤트
+        binding.ExpandDescription.setOnClickListener {
+            binding.bookDescription.maxLines = Int.MAX_VALUE
+            binding.ExpandDescription.visibility = View.GONE
+        }
+
         // UI 업데이트
         binding.bookTitle.text = book.title
         binding.bookAuthor.text = book.author
         binding.bookDescription.text = book.description
-        binding.bookPages.text = "${book.pages} pages"
         binding.bookYear.text = book.year.toString()
         binding.bookPublisher.text = book.publisher
         binding.bookRating.rating = book.rating
@@ -49,5 +73,6 @@ class BookPageFragment : Fragment() {
 
         return binding.root
     }
+
 
 }
