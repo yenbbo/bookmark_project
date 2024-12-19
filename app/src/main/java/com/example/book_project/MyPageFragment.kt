@@ -50,7 +50,6 @@ class MyPageFragment : Fragment() {
                 .commit()
         }
 
-
         binding.myBookshelf.setOnClickListener {
             val intent = Intent(requireContext(), MyBookshelfActivity::class.java)
             startActivity(intent)
