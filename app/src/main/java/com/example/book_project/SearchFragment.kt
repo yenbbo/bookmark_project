@@ -82,6 +82,7 @@ class SearchFragment : Fragment() {
                         for (i in 0 until items.length()) {
                             val item = items.getJSONObject(i)
                             val book = Book(
+                                id = item.getString("isbn"),
                                 title = item.getString("title").replace("<b>", "").replace("</b>", ""),
                                 author = item.optString("author", "Unknown"),
                                 coverUrl = item.optString("image", ""),

@@ -64,5 +64,5 @@ dependencies {
     implementation (libs.firebase.database)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-    implementation(libs.okhttp)
+    implementation(libs.okhttp3.okhttp)
 }

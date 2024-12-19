@@ -2,6 +2,7 @@ package com.example.book_project
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -39,11 +40,17 @@ class BookPageFragment : Fragment() {
 
         binding.writingBtn.setOnClickListener {
             val intent = Intent(requireContext(), WritingActivity::class.java)
+            intent.putExtra("bookID", book.id)
+            intent.putExtra("bookTitle", book.title)
+            Log.d("BookPageFrag", "bookID: ${book.id}, bookTitle: ${book.title}")
             startActivity(intent)
         }
 
         binding.buttonViewAll.setOnClickListener {
             val intent = Intent(requireContext(), CommentActivity::class.java)
+            intent.putExtra("bookID", book.id)
+            intent.putExtra("bookTitle", book.title)
+            Log.d("BookPageFrag", "bookID: ${book.id}, bookTitle: ${book.title}")
             startActivity(intent)
         }
 

@@ -32,19 +32,33 @@
             android:visibility="gone"
             />
     </LinearLayout>
+
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_weight="1"
         />
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/item_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:visibility="gone"
-        app:layout_constraintDimensionRatio="1:1"
-        app:shapeAppearanceOverlay="@style/RoundedImageStyle"
-        />
+        android:layout_marginEnd="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/item_date"
+            android:layout_gravity="end"
+            />
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/item_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            app:layout_constraintDimensionRatio="1:1"
+            app:shapeAppearanceOverlay="@style/RoundedImageStyle"
+            />
+    </LinearLayout>
 </LinearLayout>
