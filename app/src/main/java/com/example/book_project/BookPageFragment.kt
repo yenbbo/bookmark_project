@@ -12,7 +12,6 @@ import com.example.book_project.model.Book
 import com.bumptech.glide.Glide
 import com.example.book_project.databinding.FragmentBookPageBinding
 
-
 class BookPageFragment : Fragment() {
 
     private lateinit var binding: FragmentBookPageBinding
@@ -31,6 +30,10 @@ class BookPageFragment : Fragment() {
     ): View {
         binding = FragmentBookPageBinding.inflate(inflater, container, false)
 
+        binding.beforeIcon.setOnClickListener {
+            parentFragmentManager.popBackStack() // 검색창으로 돌아가기
+        }
+
         // UI 업데이트
         binding.bookTitle.text = book.title
         binding.bookAuthor.text = book.author
@@ -46,4 +49,5 @@ class BookPageFragment : Fragment() {
 
         return binding.root
     }
+
 }

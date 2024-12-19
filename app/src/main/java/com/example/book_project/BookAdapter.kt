@@ -1,5 +1,6 @@
 package com.example.book_project
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,9 +44,11 @@ class BookAdapter(
 
     override fun getItemCount(): Int = books.size
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateBooks(newBooks: List<Book>) {
         books = newBooks
         notifyDataSetChanged()
     }
+
 
 }

@@ -23,7 +23,6 @@ class SearchFragment : Fragment() {
     private lateinit var bookAdapter: BookAdapter // 어댑터에서 아이템 클릭 이벤트 정의
     private lateinit var binding: FragmentBookSearchBinding
     private val books = mutableListOf<Book>()
-    private lateinit var retrofit: Retrofit
 
     private val clientId = "mKoOX4w44sReCYsNmeSY"
     private val clientSecret = "qzw2KD2QTZ"
@@ -37,7 +36,7 @@ class SearchFragment : Fragment() {
 
 
         // RecyclerView 설정
-        bookAdapter = BookAdapter(emptyList()) { book ->
+        bookAdapter = BookAdapter(books) { book ->
             navigateToBookPage(book)
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -58,7 +57,7 @@ class SearchFragment : Fragment() {
 
 
     private fun searchBooks(query: String) {
-        val url = "$apiUrl?query=${query}&display=8"
+        val url = "$apiUrl?query=${query}&display=10"
         val request = Request.Builder()
             .url(url)
             .addHeader("X-Naver-Client-Id", clientId)
@@ -87,8 +86,8 @@ class SearchFragment : Fragment() {
                                 author = item.optString("author", "Unknown"),
                                 coverUrl = item.optString("image", ""),
                                 description = item.optString("description", ""),
-                                rating = 0.0f, // 네이버 API는 평점을 제공하지 않음
-                                pages = 0,     // 네이버 API는 페이지 정보를 제공하지 않음
+                                rating = 0.0f, // 네이버 API는 평점을 제공 x
+                                pages = 0,     // 네이버 API는 페이지 정보를 제공 x
                                 year = item.optString("pubdate", "0000").take(4).toIntOrNull() ?: 0,
                                 publisher = item.optString("publisher", "Unknown")
                             )
@@ -96,9 +95,13 @@ class SearchFragment : Fragment() {
                         }
 
                         requireActivity().runOnUiThread {
-                            books.clear()
-                            books.addAll(newBooks)
-                            bookAdapter.updateBooks(newBooks)
+                            if (newBooks.isEmpty()) {
+                                Toast.makeText(requireContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                books.clear()
+                                books.addAll(newBooks) // 기존 리스트를 새 데이터로 갱신
+                                bookAdapter.notifyDataSetChanged() // 어댑터에 새 데이터 전달
+                            }
                         }
                     }
                 } else {
