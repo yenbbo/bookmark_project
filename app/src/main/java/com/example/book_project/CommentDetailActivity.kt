@@ -111,6 +111,9 @@ class CommentDetailAdapter(val datas: MutableList<Reply>): RecyclerView.Adapter<
                             } else {
                                 binding.likeButton.setImageResource(R.drawable.filled_favor_icon)
                             }
+                            // 좋아요 후 알림 보내기
+                            val userName = FirebaseAuth.getInstance().currentUser?.displayName ?: "Unknown User"
+                            sendLikeNotification(reply.uid, userName, reply.postID, reply.bookID)
                         }
                 }
             }
@@ -132,6 +135,30 @@ class CommentDetailAdapter(val datas: MutableList<Reply>): RecyclerView.Adapter<
         } else {
             binding.deleteButton.visibility = View.GONE
         }
+    }
+
+    private fun sendLikeNotification(receiverUID: String, userName: String, postID: String, bookID: String) {
+        val notification = Notification(
+            type = "like",
+            senderUID = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+            receiverUID = receiverUID,
+            postID = postID,
+            bookID = bookID,
+            message = "$userName 님이 내 댓글에 좋아요를 남겼습니다.",
+            timestamp = Timestamp.now(),
+            isRead = false
+        )
+
+        db.collection("notifications")
+            .document(receiverUID)
+            .collection("userNotifications")
+            .add(notification)
+            .addOnSuccessListener {
+                Log.d("Notification", "Like notification sent to $receiverUID")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Notification", "Error sending like notification", e)
+            }
     }
 
     private fun deleteComment(reply: Reply) {
@@ -299,6 +326,8 @@ class CommentDetailActivity : AppCompatActivity() {
                 .collection("replies")
                 .add(reply)
                 .addOnSuccessListener {
+                    val userName = FirebaseAuth.getInstance().currentUser?.displayName ?: "Unknown User"
+                    sendCommentNotification(reply.uid, userName, content, postID!!, bookID!!)
                     // Firestore에서 데이터가 실시간으로 갱신되므로 여기서 리스트를 수동으로 업데이트하지 않음
                     binding.commentInput.text.clear()
                 }
@@ -306,5 +335,28 @@ class CommentDetailActivity : AppCompatActivity() {
                     Log.e("CommentDetailActivity", "Error posting reply", e)
                 }
         }
+    }
+    private fun sendCommentNotification(receiverUID: String, userName: String, replyContent: String, postID: String, bookID: String) {
+        val notification = Notification(
+            type = "comment",
+            senderUID = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+            receiverUID = receiverUID,
+            postID = postID,
+            bookID = bookID,
+            message = "$userName 님이 내 코멘트에 댓글을 남겼습니다: $replyContent",
+            timestamp = Timestamp.now(),
+            isRead = false
+        )
+
+        db.collection("notifications")
+            .document(receiverUID)
+            .collection("userNotifications")
+            .add(notification)
+            .addOnSuccessListener {
+                Log.d("Notification", "Comment notification sent to $receiverUID")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Notification", "Error sending comment notification", e)
+            }
     }
 }

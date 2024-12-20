@@ -2,31 +2,100 @@ package com.example.book_project
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.book_project.databinding.ActivityNotificationBinding
 import com.example.book_project.databinding.ItemNotificationBinding
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import java.util.Locale
 
-class NotiViewHolder(val binding: ItemNotificationBinding) : RecyclerView.ViewHolder(binding.root)
+data class Notification(
+    val type: String = "", // "like", "comment", 등
+    val senderUID: String = "",
+    val receiverUID: String = "",
+    val postID: String? = null,
+    val bookID: String? = null,
+    val commentID: String? = null,
+    val timestamp: Timestamp = Timestamp.now(),
+    val message: String = "",
+    var isRead: Boolean = false
+)
+class NotificationViewHolder(val binding: ItemNotificationBinding) :
+    RecyclerView.ViewHolder(binding.root)
 
-class NotiAdapter(val data: MutableList<String>) : RecyclerView.Adapter<NotiViewHolder>(){
-    override fun getItemCount(): Int = data.size
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotiViewHolder =
-        NotiViewHolder(ItemNotificationBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
-    override fun onBindViewHolder(holder: NotiViewHolder, position: Int){
-        holder.binding.itemText.text = data[position]
+class NotificationAdapter(private val notifications: List<Notification>) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
+        val binding = ItemNotificationBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return NotificationViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val notification = notifications[position]
+        val binding=(holder as NotificationViewHolder).binding
+
+        binding.notificationMessage.text = notification.message
+
+        binding.root.setOnClickListener {
+            // 알림을 읽음 상태로 업데이트
+            markNotificationAsRead(notification)
+            // 클릭 이벤트 처리
+            handleNotificationClick(notification)
+        }
+    }
+
+    override fun getItemCount(): Int = notifications.size
+
+    fun markNotificationAsRead(notification: Notification) {
+        val db = FirebaseFirestore.getInstance()
+        val currentUID = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        db.collection("notifications")
+            .document(currentUID)
+            .collection("userNotifications")
+            .whereEqualTo("timestamp", notification.timestamp)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (doc in documents) {
+                    db.collection("notifications")
+                        .document(currentUID)
+                        .collection("userNotifications")
+                        .document(doc.id)
+                        .update("isRead", true)
+                }
+            }
+    }
+
+    private fun handleNotificationClick(notification: Notification) {
+        // 알림 클릭 시 적절한 액티비티로 이동
+        when (notification.type) {
+            "like" -> {
+                // 좋아요 알림 클릭 처리
+            }
+            "comment" -> {
+                // 댓글 알림 클릭 처리
+            }
+        }
     }
 }
 
 class NotificationActivity : AppCompatActivity() {
+    private lateinit var adapter: NotificationAdapter
+    private val notifications = mutableListOf<Notification>()
+    private val db = FirebaseFirestore.getInstance()
+
     val binding: ActivityNotificationBinding by lazy {
         ActivityNotificationBinding.inflate(layoutInflater)
     }
@@ -34,16 +103,40 @@ class NotificationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val data = mutableListOf<String>()
-        for(i in 1..10){
-            data.add("Notification $i")
-        }
-        binding.notificationRecyclerview.layoutManager = LinearLayoutManager(this)
-        binding.notificationRecyclerview.adapter = NotiAdapter(data)
-        binding.notificationRecyclerview.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
+        setupRecyclerView()
+        loadNotifications()
+    }
 
-        binding.beforeIcon.setOnClickListener{
-            finish()
-        }
+    private fun setupRecyclerView() {
+        adapter = NotificationAdapter(notifications)
+        binding.notificationRecyclerview.layoutManager = LinearLayoutManager(this)
+        binding.notificationRecyclerview.adapter = adapter
+        binding.notificationRecyclerview.addItemDecoration(
+            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        )
+    }
+
+    private fun loadNotifications() {
+        val currentUID = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        db.collection("notifications")
+            .document(currentUID)
+            .collection("userNotifications")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.e("NotificationActivity", "Error fetching notifications", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshots != null) {
+                    notifications.clear()
+                    for (doc in snapshots.documents) {
+                        val notification = doc.toObject(Notification::class.java)
+                        notification?.let { notifications.add(it) }
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+            }
     }
 }

@@ -106,6 +106,7 @@ class CommentAdapter(val datas: MutableList<Comment>, private val onItemClick: (
         val binding=(holder as CommentViewHolder).binding
         val comment = datas[position]
         val currentUID = FirebaseAuth.getInstance().currentUser?.uid
+        val userName = FirebaseAuth.getInstance().currentUser?.displayName
 
         Log.d("CommentAdapter", "Binding comment at position: $position, data: $comment")
 
@@ -174,6 +175,10 @@ class CommentAdapter(val datas: MutableList<Comment>, private val onItemClick: (
                             } else {
                                 binding.likeButton.setImageResource(R.drawable.filled_favor_icon)
                             }
+                            // 좋아요 알림 전송
+                            if (userName != null) {
+                                sendLikeNotification(comment.uid, userName, comment.postID, comment.bookID)
+                            }
                         }
                 }
             }
@@ -207,6 +212,30 @@ class CommentAdapter(val datas: MutableList<Comment>, private val onItemClick: (
                 }
             }
         }
+    }
+
+    private fun sendLikeNotification(receiverUID: String, userName: String, postID: String, bookID: String) {
+        val notification = hashMapOf(
+            "type" to "like",
+            "senderUID" to FirebaseAuth.getInstance().currentUser?.uid,
+            "receiverUID" to receiverUID,
+            "postID" to postID,
+            "bookID" to bookID,
+            "message" to "$userName 님이 내 코멘트에 좋아요를 남겼습니다.",
+            "timestamp" to Timestamp.now(),
+            "isRead" to false
+        )
+
+        db.collection("notifications")
+            .document(receiverUID)
+            .collection("userNotifications")
+            .add(notification)
+            .addOnSuccessListener {
+                Log.d("Notification", "Notification sent to $receiverUID")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Notification", "Failed to send notification", e)
+            }
     }
 
 }
