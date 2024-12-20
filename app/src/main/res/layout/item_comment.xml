@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="@color/ivory">
+
+    <!-- 프로필 이미지 -->
+    <ImageView
+        android:id="@+id/commentProfile"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/profile_icon"
+        android:layout_marginEnd="8dp"
+        />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- 사용자 이름 -->
+        <TextView
+            android:id="@+id/commentName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이름"
+            style="@style/page_style"
+            android:layout_marginBottom="4dp"/>
+
+        <!-- 내용 -->
+        <TextView
+            android:id="@+id/commentText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="내용"
+            style="@style/content_style"
+            android:lineSpacingExtra="2dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="bottom"
+            >
+            <ImageView
+                android:id="@+id/like_button"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:background="@drawable/favor_icon"
+                android:layout_gravity="center"
+                />
+            <TextView
+                android:id="@+id/like_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/count_style"
+                android:text="0"
+                android:layout_marginStart="2dp"
+                />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <!-- 날짜 -->
+        <TextView
+            android:id="@+id/commentDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/spoiler_style"
+            />
+        <!-- 삭제 버튼 -->
+        <ImageView
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/close_icon"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            />
+    </LinearLayout>
+
+</LinearLayout>

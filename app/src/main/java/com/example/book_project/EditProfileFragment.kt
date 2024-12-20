@@ -33,14 +33,25 @@ class EditProfileFragment : Fragment() {
 
         val currentUser = auth.currentUser
 
-        // 초기화
+        // Firestore에서 사용자 정보 불러오기
         currentUser?.let {
-            binding.editUserName.setText(it.displayName)
-            Glide.with(this)
-                .load(it.photoUrl)
-                .circleCrop()
-                .placeholder(R.drawable.profile_icon)
-                .into(binding.editProfileImage)
+            val userRef = db.collection("users").document(it.uid)
+            userRef.get().addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val userName = document.getString("userName")
+                    val userPhotoUrl = document.getString("userProfileImage")
+
+                    // 사용자 이름 설정
+                    binding.editUserName.setText(userName)
+
+                    // 프로필 사진 설정
+                    Glide.with(this)
+                        .load(userPhotoUrl)
+                        .circleCrop()
+                        .placeholder(R.drawable.profile_icon)
+                        .into(binding.editProfileImage)
+                }
+            }
         }
 
         // 프로필 이미지 변경 버튼 클릭 이벤트
@@ -51,6 +62,7 @@ class EditProfileFragment : Fragment() {
         // 저장 버튼 클릭 이벤트
         binding.saveProfileButton.setOnClickListener {
             saveProfile()
+            parentFragmentManager.popBackStack() // 뒤로가기
         }
 
         binding.beforeIcon.setOnClickListener {
@@ -83,32 +95,38 @@ class EditProfileFragment : Fragment() {
 
         val currentUser = auth.currentUser
         currentUser?.let {
+            val photoUri = selectedImageUri ?: it.photoUrl
             val userProfileChangeRequest = UserProfileChangeRequest.Builder()
                 .setDisplayName(newUserName)
-                .setPhotoUri(selectedImageUri)
+                .setPhotoUri(photoUri)
                 .build()
 
             it.updateProfile(userProfileChangeRequest)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Toast.makeText(requireContext(), "프로필이 업데이트되었습니다.", Toast.LENGTH_SHORT).show()
+                        val userRef = db.collection("users").document(it.uid)
+                        val updatedData = hashMapOf<String, Any>(
+                            "name" to newUserName,
+                            "photoUrl" to (selectedImageUri?.toString() ?: "")
+                        )
+                        userRef.update(updatedData)
+                            .addOnSuccessListener {
+                                Log.d("EditProfile", "Firestore 업데이트 성공")
+                                Toast.makeText(requireContext(), "프로필이 업데이트되었습니다.", Toast.LENGTH_SHORT).show()
+                                // 프로필 업데이트 결과 전달
+                                parentFragmentManager.setFragmentResult("profile", Bundle().apply {
+                                    putString("name", newUserName)
+                                    putString("photoUrl", selectedImageUri?.toString())
+                                })
+                                parentFragmentManager.popBackStack()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("EditProfile", "Firestore 업데이트 실패", e)
+                            }
+
                     } else {
                         Toast.makeText(requireContext(), "프로필 업데이트에 실패했습니다.", Toast.LENGTH_SHORT).show()
                     }
-                }
-
-            // Firestore에 사용자 정보 업데이트
-            val userRef = db.collection("users").document(it.uid)
-            val updatedData = hashMapOf<String, Any>(
-                "name" to newUserName,
-                "photoUrl" to (selectedImageUri?.toString() ?: it.photoUrl.toString())
-            )
-            userRef.update(updatedData)
-                .addOnSuccessListener {
-                    Log.d("EditProfile", "Firestore 업데이트 성공")
-                }
-                .addOnFailureListener { e ->
-                    Log.e("EditProfile", "Firestore 업데이트 실패", e)
                 }
         }
     }
