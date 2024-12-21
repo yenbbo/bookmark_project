@@ -22,6 +22,7 @@ playServicesAuth = "21.2.0"
 retrofit = "2.9.0"
 v2User = "2.20.6"
 firebaseAuthKtx = "23.1.0"
+firebaseStorageKtx = "21.0.1"
 foundationAndroid = "1.7.6"
 
 [libraries]
@@ -49,6 +50,7 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 v2-user = { module = "com.kakao.sdk:v2-user", version.ref = "v2User" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 
 [plugins]
