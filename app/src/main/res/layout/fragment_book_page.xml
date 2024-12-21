@@ -163,20 +163,6 @@
                     android:gravity="center"/>
             </LinearLayout>
 
-            <!-- Comments Section -->
-            <Button
-                android:id="@+id/writing_btn_main"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="같이 달려요!"
-                android:backgroundTint="@color/my_yellow"
-                style = "@style/sub_title"
-                android:layout_marginBottom="8dp"
-                />
-
-
-
             <LinearLayout
                 android:id="@+id/previewCommentsContainer"
                 android:layout_width="match_parent"
