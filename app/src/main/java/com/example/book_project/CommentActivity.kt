@@ -1,5 +1,6 @@
 package com.example.book_project
 
+import android.R
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -7,6 +8,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -25,16 +29,21 @@ import com.google.firebase.firestore.Query
 import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.appcompat.widget.SearchView
+
 
 data class Comment(
     val content: String = "",
     val page: String = "",
+    val pageNumber: Int = 0,
     val imageUrl: String? = null,
     val isSpoiler: Boolean = false,
     val timestamp: Timestamp = Timestamp.now(),
     val uid: String? = "",
     val bookID: String? = ""
 ) {
+
+
     fun getDate(): Date = timestamp.toDate()
     // 날짜 형식 변환
     fun getFormattedDate(): String {
@@ -130,6 +139,8 @@ class CommentActivity : AppCompatActivity() {
 
         setRecyclerView()
         loadComments()
+        setupSearchView()
+        setupSpinner()
 
         binding.beforeIcon.setOnClickListener {
             finish()
@@ -151,24 +162,108 @@ class CommentActivity : AppCompatActivity() {
         binding.commentRecyclerview.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
     }
 
-    private fun loadComments() {
+    private fun setupSpinner() {
+        val options = arrayOf("최신순", "페이지순", "좋아요순")
+        val spinnerAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, options)
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinner.adapter = spinnerAdapter
+
+        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> loadComments(orderBy = "timestamp", direction = Query.Direction.DESCENDING) // 최신순
+                    1 -> loadComments(orderBy = "page", direction = Query.Direction.ASCENDING) // 페이지순
+                    2 -> {
+                        // 좋아요순
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun setupSearchView() {
+        binding.pageSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query.isNullOrEmpty() || query.toIntOrNull() == null) {
+                    Toast.makeText(this@CommentActivity, "숫자를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                } else {
+                    searchCommentsByPage(query.toInt())
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // 검색창 내용이 비워졌을 때 초기 상태로 복원
+                if (newText.isNullOrEmpty()) {
+                    loadComments() // 초기 상태로 복원
+                }
+                return true
+            }
+        })
+        binding.pageSearchView.setOnCloseListener {
+            loadComments() // 검색창 닫으면 댓글 목록 초기화
+            true
+        }
+    }
+
+    private fun loadComments(orderBy: String = "timestamp", direction: Query.Direction = Query.Direction.DESCENDING) {
         bookID?.let {
             db.collection("books")
                 .document(it)
                 .collection("posts")
                 .whereEqualTo("bookID", bookID)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .orderBy(orderBy, direction)
                 .get()
                 .addOnSuccessListener { documents ->
-                    comments.clear()
+                    val tempComments = mutableListOf<Comment>()
+
                     for (doc in documents) {
                         val comment = doc.toObject(Comment::class.java)
-                        comments.add(comment)
+
+                        // `page` 필드를 숫자로 변환
+                        val pageNumber = comment.page.removePrefix("p.").toIntOrNull() ?: Int.MAX_VALUE
+                        tempComments.add(comment.copy(pageNumber = pageNumber)) // 새로 변환된 필드를 포함
                     }
+
+                    val sortedComments = when (orderBy) {
+                        "timestamp" -> tempComments.sortedByDescending { it.timestamp }
+                        "page" -> tempComments.sortedBy { it.pageNumber } // 숫자 정렬
+                        else -> tempComments
+                    }
+
+                    comments.clear()
+                    comments.addAll(sortedComments)
                     adapter.notifyDataSetChanged()
                 }
                 .addOnFailureListener { e ->
                     Log.e("CommentActivity", "Error loading comments", e)
+                }
+        }
+    }
+
+    private fun searchCommentsByPage(page: Int) {
+        bookID?.let {
+            db.collection("books")
+                .document(it)
+                .collection("posts")
+                .whereEqualTo("page", "p.$page") // 페이지 값은 "p."로 시작
+                .get()
+                .addOnSuccessListener { documents ->
+                    comments.clear()
+                    if (documents.isEmpty) {
+                        Toast.makeText(this, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        for (doc in documents) {
+                            val comment = doc.toObject(Comment::class.java)
+                            comments.add(comment)
+                        }
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+                .addOnFailureListener { e ->
+                    Log.e("CommentActivity", "Error searching comments", e)
                 }
         }
     }

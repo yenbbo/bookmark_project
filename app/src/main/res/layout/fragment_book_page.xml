@@ -139,6 +139,33 @@
                 android:layout_marginBottom="8dp"
                 />
 
+            <LinearLayout
+                android:id="@+id/commentsPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/previewTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="인기 댓글"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
+
+                <!-- Placeholder for Comments -->
+                <LinearLayout
+                    android:id="@+id/previewCommentsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                </LinearLayout>
+            </LinearLayout>
 
             <!-- View All Button -->
             <Button
