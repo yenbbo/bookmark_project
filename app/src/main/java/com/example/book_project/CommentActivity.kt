@@ -1,5 +1,6 @@
 package com.example.book_project
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +10,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -24,6 +28,7 @@ import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.appcompat.widget.SearchView
 
 data class Comment(
     val content: String = "",
@@ -38,6 +43,10 @@ data class Comment(
     @JvmField var isLiked: Boolean = false,
     @JvmField var commentCount: Int = 0,
 ) : Parcelable {
+
+    fun getPageNumber(): Int {
+        return page.filter { it.isDigit() }.toIntOrNull() ?: Int.MAX_VALUE
+    }
 
     // Parcelable 생성자
     constructor(parcel: Parcel) : this(
@@ -91,6 +100,7 @@ data class Comment(
         val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
         return dateFormat.format(date)
     }
+
 }
 
 class CommentViewHolder(val binding: ItemPostBinding): RecyclerView.ViewHolder(binding.root)
@@ -184,8 +194,8 @@ class CommentAdapter(val datas: MutableList<Comment>, private val onItemClick: (
             }
         }
 
-        binding.itemPage.text = comment.page
         binding.itemDate.text = comment.getFormattedDate()
+        binding.itemPage.text = comment.page
 
         // 글 클릭 이벤트 설정
         binding.root.setOnClickListener {
@@ -272,6 +282,10 @@ class CommentActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        setupSpinner()
+        setupSearchView()
+
         // 책 데이터 전달 받기
         bookID = intent.getStringExtra("bookID")
         bookTitle = intent.getStringExtra("bookTitle")
@@ -289,6 +303,7 @@ class CommentActivity : AppCompatActivity() {
             intent.putExtra("bookTitle", bookTitle)
             writingActivityResultLauncher.launch(intent)
         }
+
     }
 
     private fun setRecyclerView() {
@@ -301,24 +316,134 @@ class CommentActivity : AppCompatActivity() {
         binding.commentRecyclerview.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
     }
 
-    private fun loadComments() {
+    private fun setupSpinner() {
+        val options = arrayOf("최신순", "페이지순", "좋아요순")
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinner.adapter = spinnerAdapter
+
+        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> loadComments(orderBy = "timestamp", direction = Query.Direction.DESCENDING) // 최신순
+                    1 -> loadComments(orderBy = "page", direction = Query.Direction.ASCENDING) // 페이지순
+                    2 -> loadComments(orderBy = "likeCount", direction = Query.Direction.DESCENDING) // 좋아요순
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun setupSearchView() {
+        binding.pageSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query.isNullOrEmpty() || query.toIntOrNull() == null) {
+                    Toast.makeText(this@CommentActivity, "숫자를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                } else {
+                    searchCommentsByPage(query.toInt().toString())
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) {
+                    loadComments() // 초기 상태로 복원
+                }
+                return true
+            }
+        })
+
+        binding.pageSearchView.setOnCloseListener {
+            loadComments() // 검색창 닫으면 초기화
+            true
+        }
+    }
+
+    // 페이지 검색 기능
+    @SuppressLint("NotifyDataSetChanged")
+    private fun searchCommentsByPage(page: String) {
         bookID?.let {
+
+            val formattedPage = "p.$page" // "p." 형식 추가
+
             db.collection("books")
                 .document(it)
                 .collection("posts")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .whereEqualTo("page", formattedPage) // 문자열 기준 검색
                 .get()
                 .addOnSuccessListener { documents ->
                     comments.clear()
+
+                    // 검색 결과가 비어있는지 확인
+                    if (documents.isEmpty) {
+                        Toast.makeText(
+                            this@CommentActivity,
+                            "해당 페이지에 댓글이 없습니다.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        for (doc in documents) {
+                            val comment = doc.toObject(Comment::class.java)
+                            comments.add(comment)
+                        }
+                    }
+
+                    // 결과 반영
+                    adapter.notifyDataSetChanged()
+                }
+                .addOnFailureListener { e ->
+                    Log.e("CommentActivity", "Error searching comments", e)
+                    Toast.makeText(
+                        this@CommentActivity,
+                        "댓글 검색 중 오류가 발생했습니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
+    }
+
+
+    private fun loadComments(
+        orderBy: String = "timestamp",
+        direction: Query.Direction = Query.Direction.DESCENDING
+    ) {
+        bookID?.let {
+            db.collection("books")
+                .document(bookID!!)
+                .collection("posts")
+                .get()
+                .addOnSuccessListener { documents ->
+                    comments.clear()
+
+                    val tempList = mutableListOf<Comment>()
                     for (doc in documents) {
                         val comment = doc.toObject(Comment::class.java)
                         if (doc.id.isNotEmpty()) {
-                            comment.postID = doc.id // Firestore 문서 ID로 설정
-                        } else {
-                            Log.e("loadComments", "Invalid document ID: ${doc.id}")
+                            comment.postID = doc.id
                         }
-                        comments.add(comment)
+                        tempList.add(comment)
                     }
+
+                    when (orderBy) {
+                        "likeCount" -> {
+                            tempList.sortWith(
+                                compareByDescending<Comment> { it.likeCount }
+                                    .thenBy { it.timestamp }
+                            )
+                        }
+                        "page" -> { // 페이지 순 정렬
+                            tempList.sortWith(
+                                compareBy<Comment> { it.getPageNumber() }
+                                    .thenBy { it.timestamp }
+                            )
+                        }
+                        "timestamp" -> {
+                            tempList.sortByDescending { it.timestamp }
+                        }
+                    }
+
+                    comments.addAll(tempList)
                     adapter.notifyDataSetChanged()
                 }
                 .addOnFailureListener { e ->
@@ -326,6 +451,8 @@ class CommentActivity : AppCompatActivity() {
                 }
         }
     }
+
+
 
     private fun navigateToCommentDetail(comment: Comment) {
         val intent = Intent(this, CommentDetailActivity::class.java).apply {

@@ -84,19 +84,23 @@ class WritingActivity : AppCompatActivity() {
         // 등록 버튼 클릭하면 firestore에 데이터 저장
         binding.submit.setOnClickListener {
             val content = binding.content.text.toString()
-            val page = binding.pageNum.text.toString()
+            val pageText = binding.content.text.toString()
             val isSpoiler = binding.spoiler.isChecked
             val currentUser = FirebaseAuth.getInstance().currentUser
 
-            if (content.isNotEmpty() && page != "p." && page.isNotEmpty() && currentUser != null) {
+            val pageNumber = pageText.removePrefix("p.").toIntOrNull()
+
+            if (content.isNotEmpty() && pageNumber !=  null && currentUser != null) {
+
                 val postData = hashMapOf(
                     "uid" to currentUser.uid,
                     "content" to content,
-                    "page" to page,
+                    "page" to pageNumber,
                     "isSpoiler" to isSpoiler,
                     "imageUrl" to (imageUri?.toString() ?: ""),
                     "timestamp" to FieldValue.serverTimestamp(),
                     "bookID" to bookID,
+                    "bookTitle" to bookTitle,
                     "bookTitle" to bookTitle,
                     "likeCount" to 0,
                     "isLiked" to false,
@@ -126,7 +130,7 @@ class WritingActivity : AppCompatActivity() {
                 if (content.isEmpty()) {
                     binding.content.error = "내용을 입력해주세요."
                 }
-                if (page == "p." || page.isEmpty()) {
+                if (pageNumber == null) {
                     binding.pageNum.error = "페이지를 입력해주세요."
                 }
             }
