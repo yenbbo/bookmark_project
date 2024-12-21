@@ -7,21 +7,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.RatingBar
 import android.widget.TextView
-import androidx.compose.foundation.text.selection.Direction
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import com.example.book_project.model.Book
 import com.bumptech.glide.Glide
 import com.example.book_project.databinding.FragmentBookPageBinding
-import retrofit2.http.Query
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class BookPageFragment : Fragment() {
 
     private lateinit var binding: FragmentBookPageBinding
     private lateinit var book: Book
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +37,9 @@ class BookPageFragment : Fragment() {
             parentFragmentManager.popBackStack() // 검색창으로 돌아가기
         }
 
-        binding.writingBtn.setOnClickListener {
+        binding.bookYearDetail.text = book.year.toString()
+        binding.bookPublisherDetail.text = book.publisher
+        binding.writingBtnMain.setOnClickListener {
             val intent = Intent(requireContext(), WritingActivity::class.java)
             intent.putExtra("bookID", book.id)
             intent.putExtra("bookTitle", book.title)
@@ -82,22 +81,34 @@ class BookPageFragment : Fragment() {
 
         return binding.root
     }
+
     private fun loadTopComments() {
         book.id?.let { bookID ->
             db.collection("books")
                 .document(bookID)
                 .collection("posts")
-                .orderBy("likes", Query.Direction.DESCENDING) // 좋아요 기준 정렬
+                .orderBy("likeCount", Query.Direction.DESCENDING) // 좋아요 기준 정렬
+                .orderBy("timestamp", Query.Direction.ASCENDING) // 좋아요 수가 같을 경우 시간 순으로 정렬
                 .limit(3) // 상위 3개
                 .get()
                 .addOnSuccessListener { documents ->
                     val previewContainer = binding.previewCommentsContainer
-                    previewContainer.removeAllViews() // 초기화
+                    previewContainer.removeAllViews() // 기존 뷰 초기화
 
                     for (doc in documents) {
                         val comment = doc.toObject(Comment::class.java)
-                        val commentView = createCommentView(comment)
-                        previewContainer.addView(commentView)
+
+                        val userDocRef = db.collection("users").document(comment.uid)
+                        userDocRef.get().addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                val userName = document.getString("userName") ?: "Unknown" // 닉네임 불러오기
+
+                                val commentView = createCommentView(comment, userName)
+                                previewContainer.addView(commentView) // 미리보기 추가
+                            }
+                        }.addOnFailureListener { e ->
+                            Log.e("loadTopComments", "Failed to load user data", e)
+                        }
                     }
                 }
                 .addOnFailureListener { e ->
@@ -106,20 +117,60 @@ class BookPageFragment : Fragment() {
         }
     }
 
-    private fun createCommentView(comment: Comment): View {
-        val commentView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.comment_preview_item, null)
+    private fun createCommentView(comment: Comment, userName: String): View {
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.item_comment, null)
 
-        val userNameView = commentView.findViewById<TextView>(R.id.previewUserName)
-        val ratingBar = commentView.findViewById<RatingBar>(R.id.previewRatingBar)
-        val commentTextView = commentView.findViewById<TextView>(R.id.previewComment)
-        val likesView = commentView.findViewById<TextView>(R.id.previewLikes)
+        val commentContent = view.findViewById<TextView>(R.id.commentText)
+        val commentUserName = view.findViewById<TextView>(R.id.commentName) // 닉네임 추가
+        val commentLikeCount = view.findViewById<TextView>(R.id.like_count)
 
-        userNameView.text = comment.userName
-        ratingBar.rating = comment.rating
-        commentTextView.text = comment.content
-        likesView.text = "좋아요 ${comment.likes}"
+        commentContent.text = comment.content
+        commentUserName.text = userName // 닉네임 적용
+        commentLikeCount.text = comment.likeCount.toString()
 
-        return commentView
+        return view
     }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // 상단 UI 초기화 및 데이터 로드
+        binding.beforeIcon.setOnClickListener {
+            parentFragmentManager.popBackStack() // 검색창으로 돌아가기
+        }
+
+        binding.writingBtn.setOnClickListener {
+            val intent = Intent(requireContext(), WritingActivity::class.java)
+            intent.putExtra("bookID", book.id)
+            intent.putExtra("bookTitle", book.title)
+            startActivity(intent)
+        }
+
+        binding.buttonViewAll.setOnClickListener {
+            val intent = Intent(requireContext(), CommentActivity::class.java)
+            intent.putExtra("bookID", book.id)
+            intent.putExtra("bookTitle", book.title)
+            startActivity(intent)
+        }
+
+        // 상단 설명 더보기 처리
+        binding.bookDescription.post {
+            if (binding.bookDescription.lineCount > 6) {
+                binding.ExpandDescription.visibility = View.VISIBLE
+            }
+        }
+
+        binding.ExpandDescription.setOnClickListener {
+            binding.bookDescription.maxLines = Int.MAX_VALUE
+            binding.ExpandDescription.visibility = View.GONE
+        }
+
+        // 데이터 로드
+        loadTopComments()
+    }
+
+
+
 }

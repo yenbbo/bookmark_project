@@ -101,7 +101,6 @@ class WritingActivity : AppCompatActivity() {
                     "timestamp" to FieldValue.serverTimestamp(),
                     "bookID" to bookID,
                     "bookTitle" to bookTitle,
-                    "likes" to 0
                     "bookTitle" to bookTitle,
                     "likeCount" to 0,
                     "isLiked" to false,
