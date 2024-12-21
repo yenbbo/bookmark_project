@@ -1,5 +1,6 @@
 package com.example.book_project
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -351,6 +352,7 @@ class CommentActivity : AppCompatActivity() {
     }
 
     // 페이지 검색 기능
+    @SuppressLint("NotifyDataSetChanged")
     private fun searchCommentsByPage(page: String) {
         bookID?.let {
 
