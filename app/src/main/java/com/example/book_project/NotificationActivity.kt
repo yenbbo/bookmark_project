@@ -1,6 +1,5 @@
 package com.example.book_project
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,7 +14,6 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import java.util.Locale
 
 data class Notification(
     val type: String = "", // "like", "comment", 등
@@ -51,14 +49,12 @@ class NotificationAdapter(private val notifications: List<Notification>) :
         binding.root.setOnClickListener {
             // 알림을 읽음 상태로 업데이트
             markNotificationAsRead(notification)
-            // 클릭 이벤트 처리
-            handleNotificationClick(notification)
         }
     }
 
     override fun getItemCount(): Int = notifications.size
 
-    fun markNotificationAsRead(notification: Notification) {
+    private fun markNotificationAsRead(notification: Notification) {
         val db = FirebaseFirestore.getInstance()
         val currentUID = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
@@ -77,18 +73,6 @@ class NotificationAdapter(private val notifications: List<Notification>) :
                 }
             }
     }
-
-    private fun handleNotificationClick(notification: Notification) {
-        // 알림 클릭 시 적절한 액티비티로 이동
-        when (notification.type) {
-            "like" -> {
-                // 좋아요 알림 클릭 처리
-            }
-            "comment" -> {
-                // 댓글 알림 클릭 처리
-            }
-        }
-    }
 }
 
 class NotificationActivity : AppCompatActivity() {
@@ -103,6 +87,9 @@ class NotificationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        binding.beforeIcon.setOnClickListener {
+            finish()
+        }
         setupRecyclerView()
         loadNotifications()
     }
