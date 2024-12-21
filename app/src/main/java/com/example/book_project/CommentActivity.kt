@@ -259,13 +259,22 @@ class CommentActivity : AppCompatActivity() {
         }
     }
 
+    private val commentDetailActivityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val isUpdated = result.data?.getBooleanExtra("isUpdated", false) ?: false
+                if (isUpdated) {
+                    loadComments() // 데이터 갱신
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         // 책 데이터 전달 받기
         bookID = intent.getStringExtra("bookID")
         bookTitle = intent.getStringExtra("bookTitle")
-        val clickedPostID = intent.getStringExtra("postID")
 
         setRecyclerView()
         loadComments()
@@ -325,7 +334,7 @@ class CommentActivity : AppCompatActivity() {
             putExtra("commentData", comment) // 댓글 데이터 전체 전달
         }
         Log.d("CommentActivity", "Navigating to CommentDetailActivity with data: ${comment.postID}, ${comment.bookID}")
-        startActivity(intent)
+        commentDetailActivityResultLauncher.launch(intent)
     }
 
 }
