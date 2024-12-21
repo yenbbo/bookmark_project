@@ -48,14 +48,15 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:background="@drawable/gradient"
-        android:padding="10dp"
-        android:paddingTop="30dp">
-        <!--책 이미지-->
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:layout_margin="20dp"
             />
+
+
     </LinearLayout>
-
-
 </LinearLayout>
