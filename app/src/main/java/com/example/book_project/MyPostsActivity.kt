@@ -16,17 +16,33 @@ import com.bumptech.glide.Glide
 import com.example.book_project.databinding.ActivityMyPostsBinding
 import com.example.book_project.databinding.ItemNotificationBinding
 import com.example.book_project.databinding.ItemPostBinding
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 data class MyPost(
     val content: String = "",
     val page: String = "",
     val imageUrl: String? = null,
-    val date: String = "",
-)
+    val timestamp: Timestamp = Timestamp.now(),
+    val bookTitle: String = "",
+    val likeCount: Int = 0,
+    val isLiked: Boolean = false,
+    val commentCount: Int = 0,
+) {
+    fun getDate(): Date = timestamp.toDate()
+    // 날짜 형식 변환
+    fun getFormattedDate(): String {
+        val date = getDate()
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+        return dateFormat.format(date)
+    }
+}
 
 class PostViewHolder(val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -39,7 +55,14 @@ class PostAdapter(val data: MutableList<MyPost>) : RecyclerView.Adapter<PostView
         val post = data[position]
         holder.binding.itemText.text = post.content
         holder.binding.itemPage.text = post.page
-        holder.binding.itemDate.text = post.date
+        holder.binding.itemDate.text = post.getFormattedDate()
+        holder.binding.itemTitle.visibility = ViewGroup.VISIBLE
+        holder.binding.likeCount.text = post.likeCount.toString()
+        holder.binding.commentCount.text = post.commentCount.toString()
+
+        var bookTitle = post.bookTitle
+        val shortTitle = bookTitle.substringBefore("(").trim() // 책 제목에 괄호가 나오면 제거
+        holder.binding.itemTitle.text = shortTitle
 
         if(!post.imageUrl.isNullOrEmpty()){
             holder.binding.itemImage.visibility = ViewGroup.VISIBLE
@@ -90,9 +113,9 @@ class MyPostsActivity : AppCompatActivity() {
 
     private fun loadMyPosts(){
         user?.let { user ->
-            db.collectionGroup("posts") // 모든 책에서 posts 컬렉션을 조회
-                .whereEqualTo("uid", user.uid) // 현재 사용자가 작성한 글만 필터링
-                .orderBy("timestamp", Query.Direction.DESCENDING) // 최신 글 먼저
+            db.collectionGroup("posts") // 모든 `posts` 서브컬렉션에 대해 쿼리
+                .whereEqualTo("uid", user.uid) // 사용자가 작성한 글만 필터링
+                .orderBy("timestamp", Query.Direction.DESCENDING) // 최신순 정렬
                 .get()
                 .addOnSuccessListener { documents ->
                     val posts = documents.map { doc ->
