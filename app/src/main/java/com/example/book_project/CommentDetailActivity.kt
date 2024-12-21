@@ -1,5 +1,6 @@
 package com.example.book_project
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,7 +18,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 data class Reply(
@@ -64,10 +64,6 @@ class CommentDetailAdapter(val datas: MutableList<Reply>): RecyclerView.Adapter<
                 val profileImageUrl = document.getString("userProfileImage")
 
                 binding.commentName.text = userName
-                Glide.with(binding.commentProfile.context)
-                    .load(profileImageUrl ?: R.drawable.profile_icon) // Firebase에서 가져온 프로필 이미지 URL
-                    .circleCrop()
-                    .into(binding.commentProfile)
             }
         }
 
@@ -130,7 +126,7 @@ class CommentDetailAdapter(val datas: MutableList<Reply>): RecyclerView.Adapter<
             binding.deleteButton.visibility = View.VISIBLE
             binding.deleteButton.setOnClickListener {
                 // 댓글만 삭제
-                deleteComment(reply)
+                deleteReply(reply)
             }
         } else {
             binding.deleteButton.visibility = View.GONE
@@ -161,7 +157,7 @@ class CommentDetailAdapter(val datas: MutableList<Reply>): RecyclerView.Adapter<
             }
     }
 
-    private fun deleteComment(reply: Reply) {
+    private fun deleteReply(reply: Reply) {
         db.collection("books")
             .document(reply.bookID)
             .collection("posts")
@@ -191,6 +187,7 @@ class CommentDetailActivity : AppCompatActivity() {
     private var bookID: String? = null
     private val replies = mutableListOf<Reply>()
     private lateinit var adapter: CommentDetailAdapter
+    private var isUpdated = false // 데이터 변경 여부 플래그
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -219,6 +216,10 @@ class CommentDetailActivity : AppCompatActivity() {
             }
         }
         binding.beforeIcon.setOnClickListener {
+            val resultIntent = Intent().apply {
+                putExtra("isUpdated", isUpdated)
+            }
+            setResult(RESULT_OK, resultIntent)
             finish()
         }
     }
@@ -247,6 +248,22 @@ class CommentDetailActivity : AppCompatActivity() {
             // 글 작성자의 정보 가져오기
             loadUserProfile(it.uid)
             binding.postPage.text = it.page
+
+            // 글 작성자가 현재 사용자와 같다면 삭제 버튼 표시
+            val currentUID = FirebaseAuth.getInstance().currentUser?.uid
+            if (it.uid == currentUID) {
+                binding.deleteButton.visibility = View.VISIBLE
+                binding.deleteButton.setOnClickListener {
+                    // 글과 댓글 모두 삭제
+                    postID?.let { postId ->
+                        bookID?.let { bookId ->
+                            deleteComment(postId, bookId)
+                        }
+                    }
+                }
+            } else {
+                binding.deleteButton.visibility = View.GONE
+            }
         }
     }
 
@@ -257,16 +274,10 @@ class CommentDetailActivity : AppCompatActivity() {
                 if (document.exists()) {
                     // Firestore에서 이름과 프로필 이미지 URL 가져오기
                     val userName = document.getString("userName") ?: "Unknown User"
-                    val profileImageUrl = document.getString("userProfileImage")
 
                     // 사용자 이름 설정
                     binding.postName.text = userName
 
-                    // 프로필 이미지 설정
-                    Glide.with(this)
-                        .load(profileImageUrl ?: R.drawable.profile_icon) // 기본 프로필 이미지 설정
-                        .circleCrop()
-                        .into(binding.postProfile)
                 } else {
                     Log.e("CommentDetailActivity", "User document does not exist in Firestore.")
                 }
@@ -326,6 +337,7 @@ class CommentDetailActivity : AppCompatActivity() {
                 .collection("replies")
                 .add(reply)
                 .addOnSuccessListener {
+                    isUpdated = true // 변경 플래그 설정
                     val userName = FirebaseAuth.getInstance().currentUser?.displayName ?: "Unknown User"
                     sendCommentNotification(reply.uid, userName, content, postID!!, bookID!!)
                     // Firestore에서 데이터가 실시간으로 갱신되므로 여기서 리스트를 수동으로 업데이트하지 않음
@@ -335,6 +347,39 @@ class CommentDetailActivity : AppCompatActivity() {
                     Log.e("CommentDetailActivity", "Error posting reply", e)
                 }
         }
+    }
+    private fun deleteComment(postID: String, bookID: String) {
+        val postRef = db.collection("books").document(bookID).collection("posts").document(postID)
+
+        // 먼저 댓글(`replies`) 하위 컬렉션 삭제
+        postRef.collection("replies").get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = db.batch()
+                for (document in querySnapshot.documents) {
+                    batch.delete(document.reference) // 각 댓글 문서 삭제
+                }
+
+                // 댓글 삭제 후 게시글 삭제
+                batch.commit().addOnSuccessListener {
+                    postRef.delete()
+                        .addOnSuccessListener {
+                            isUpdated = true // 변경 플래그 설정
+                            val resultIntent = Intent().apply {
+                                putExtra("isUpdated", isUpdated)
+                            }
+                            setResult(RESULT_OK, resultIntent)
+                            finish() // 화면 종료
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("CommentDetailActivity", "Error deleting post", e)
+                        }
+                }.addOnFailureListener { e ->
+                    Log.e("CommentDetailActivity", "Error deleting replies", e)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("CommentDetailActivity", "Error fetching replies for deletion", e)
+            }
     }
     private fun sendCommentNotification(receiverUID: String, userName: String, replyContent: String, postID: String, bookID: String) {
         val notification = Notification(
