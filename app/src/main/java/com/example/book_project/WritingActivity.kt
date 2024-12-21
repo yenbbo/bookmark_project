@@ -89,6 +89,7 @@ class WritingActivity : AppCompatActivity() {
             val currentUser = FirebaseAuth.getInstance().currentUser
 
             if (content.isNotEmpty() && page != "p." && page.isNotEmpty() && currentUser != null) {
+
                 val postData = hashMapOf(
                     "uid" to currentUser.uid,
                     "content" to content,
@@ -97,7 +98,10 @@ class WritingActivity : AppCompatActivity() {
                     "imageUrl" to (imageUri?.toString() ?: ""),
                     "timestamp" to FieldValue.serverTimestamp(),
                     "bookID" to bookID,
-                    "bookTitle" to bookTitle
+                    "bookTitle" to bookTitle,
+                    "likeCount" to 0,
+                    "isLiked" to false,
+                    "commentCount" to 0,
                 )
 
                 db.collection("books")
@@ -162,10 +166,7 @@ class WritingActivity : AppCompatActivity() {
         }
     }
 
-    private val CAMERA_PERMISSION_CODE = 100
-    private val STORAGE_PERMISSION_CODE = 101
     private val PERMISSION_REQUEST_CODE = 1001
-
 
     private fun checkAndRequestPermissions(): Boolean {
         val permissions = mutableListOf<String>()

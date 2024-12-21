@@ -48,7 +48,12 @@
             android:dropDownVerticalOffset="18dp"
             android:dropDownWidth="78dp"
             />
-
-
     </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:padding="8dp"
+        android:clipToPadding="false" />
 </LinearLayout>

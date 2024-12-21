@@ -50,17 +50,18 @@
         android:id="@+id/editUserName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         android:hint="사용자 이름"
-        android:layout_marginTop="1dp" />
+        android:layout_marginTop="10dp" />
 
     <Button
         android:id="@+id/saveProfileButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:backgroundTint="@color/white"
-        android:textColor="@color/gray"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/my_yellow"
+        android:layout_gravity="center"
         android:text="저장"
-        android:textStyle="bold"
+        style="@style/button_style"
         android:padding="12dp" />
 </LinearLayout>

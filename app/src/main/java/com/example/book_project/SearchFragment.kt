@@ -87,9 +87,9 @@ class SearchFragment : Fragment() {
                                 author = item.optString("author", "Unknown"),
                                 coverUrl = item.optString("image", ""),
                                 description = item.optString("description", ""),
-                                rating = 0.0f, // 네이버 API는 평점을 제공 x
                                 year = item.optString("pubdate", "0000").take(4).toIntOrNull() ?: 0,
-                                publisher = item.optString("publisher", "Unknown")
+                                publisher = item.optString("publisher", "Unknown"),
+                                rating = 0.0f, // 네이버 API는 평점을 제공 x
                             )
                             newBooks.add(book)
                         }

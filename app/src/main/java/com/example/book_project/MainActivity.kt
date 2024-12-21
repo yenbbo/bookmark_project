@@ -13,12 +13,14 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private val RC_SIGN_IN = 9001
+    private val db = FirebaseFirestore.getInstance()
 
     val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
@@ -35,7 +37,9 @@ class MainActivity : AppCompatActivity() {
         val user = auth.currentUser
         if (user != null) {
             // 이미 로그인 되어 있으면 OneActivity로 이동
-            moveActivity(user)
+            val intent = Intent(this, OneActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
         // GoogleSignInOptions 설정
@@ -80,21 +84,34 @@ class MainActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Log.d("GoogleSignIn", "signInWithCredential:success")
                     val user = auth.currentUser
+                    user?.let {
+                        saveUserToFirestore(it)
+                    }
                     // 구글 사용자 정보를 다른 Activity로 전달
-                    moveActivity(user)
+                    val intent = Intent(this, OneActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 } else {
                     Log.w("GoogleSignIn", "signInWithCredential:failure", task.exception)
                 }
             }
     }
+    private fun saveUserToFirestore(user: FirebaseUser) {
+        // Firestore에 사용자 데이터 저장
+        val userRef = db.collection("users").document(user.uid)
+        val userData = hashMapOf(
+            "userName" to user.displayName,
+            "userEmail" to user.email,
+            "userProfileImage" to user.photoUrl.toString()
+        )
 
-    private fun moveActivity(user: FirebaseUser?){
-        val intent = Intent(this, OneActivity::class.java).apply {
-            putExtra("userName", user?.displayName)
-            putExtra("userEmail", user?.email)
-            putExtra("userProfileImage", user?.photoUrl.toString())
-        }
-        startActivity(intent)
-        finish()
+        userRef.set(userData)
+            .addOnSuccessListener {
+                Log.d("Firestore", "User document successfully written!")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error writing document", e)
+            }
     }
+
 }
