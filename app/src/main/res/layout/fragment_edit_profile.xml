@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/edit_profile"
+    android:background="@color/white"
+    >
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:orientation="horizontal"
+        android:background="@drawable/gradient_yellow"
+        >
+
+        <ImageView
+            android:id="@+id/before_icon"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/before_icon"
+            android:layout_marginStart="10dp"
+            />
+    </LinearLayout>
+
+
+    <!-- 프로필 이미지 수정 -->
+    <ImageView
+        android:id="@+id/editProfileImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/profile_icon"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/changeProfileImageButton"
+        style="@style/sub_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        android:layout_gravity="center"
+        android:text="프로필 사진 변경" />
+
+    <!-- 이름 수정 -->
+    <EditText
+        android:id="@+id/editUserName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:hint="사용자 이름"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/saveProfileButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/my_yellow"
+        android:layout_gravity="center"
+        android:text="저장"
+        style="@style/button_style"
+        android:padding="12dp" />
+</LinearLayout>

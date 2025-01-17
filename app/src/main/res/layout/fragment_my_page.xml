@@ -22,7 +22,7 @@
         android:id="@+id/userName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="눈송이"
+        android:text="이름"
         android:gravity="center"
         android:fontFamily="@font/pretendard_regular"
         android:textSize="28sp"
@@ -66,4 +66,20 @@
             style="@style/sub_title"
             />
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        />
+    <android.widget.Button
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="로그아웃"
+        android:layout_gravity="start"
+        style="@style/sub_title"
+        android:background="@drawable/button_border"
+        android:padding="20dp"
+        android:layout_marginBottom="120dp"
+        />
 </LinearLayout>
